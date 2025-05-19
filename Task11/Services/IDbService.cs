@@ -1,6 +1,9 @@
-﻿namespace Task11.Services;
+﻿using Task11.DTOs;
+using Task11.Models;
 
-public class IDbService
+namespace Task11.Services;
+
+public interface IDbService
 {
-    
+    Task<int> AddPrescription(PrescriptionDto prescription);
 }
