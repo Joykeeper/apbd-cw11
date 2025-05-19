@@ -1,41 +1,29 @@
+using Microsoft.EntityFrameworkCore;
+using Task11.Data;
+using Task11.Data;
+using Task11.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+builder.Services.AddControllers();
+
+// Konfiguracja kontekstu bazy danych
+// ConnectionString jest pobierany z appsettings.json, oczywiście należy go tam też ustawić
+builder.Services.AddDbContext<DatabaseContext>(options => 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
+);
+
+// Wstrzykiwanie zależności
+// https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection
+builder.Services.AddScoped<IDbService, DbService>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.UseAuthorization();
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
