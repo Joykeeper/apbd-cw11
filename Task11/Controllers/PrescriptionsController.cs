@@ -23,12 +23,7 @@ public class PrescriptionsController : ControllerBase
     {
         try
         {
-            int success = await _dbService.AddPrescription(prescription);
-
-            if (success != 0)
-            {
-                return StatusCode(500, "Server error, could not add prescription");
-            }
+            await _dbService.AddPrescription(prescription);
         }
         catch (MedicamentNotExistsException e)
         {
@@ -39,6 +34,9 @@ public class PrescriptionsController : ControllerBase
             return BadRequest(e.Message);
         }
         catch (DueDateBeforeDateException e)
+        {
+            return BadRequest(e.Message);
+        } catch (PrescriptionDuplicateException e)
         {
             return BadRequest(e.Message);
         }

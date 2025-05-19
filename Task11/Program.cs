@@ -5,15 +5,15 @@ using Task11.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-
 // Konfiguracja kontekstu bazy danych
 // ConnectionString jest pobierany z appsettings.json, oczywiście należy go tam też ustawić
 builder.Services.AddDbContext<DatabaseContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+// Add services to the container.
+
+builder.Services.AddControllers();
 
 // Wstrzykiwanie zależności
 // https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection

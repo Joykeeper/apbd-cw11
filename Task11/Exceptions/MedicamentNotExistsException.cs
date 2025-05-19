@@ -2,5 +2,5 @@
 
 public class MedicamentNotExistsException : Exception
 {
-    public MedicamentNotExistsException() : base("Provided medicament doesn't exists"){}
+    public MedicamentNotExistsException(string message) : base(message){}
 }

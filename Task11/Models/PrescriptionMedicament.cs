@@ -17,4 +17,7 @@ public class PrescriptionMedicament
     
     [MaxLength(100)] 
     public string Details { get; set; }
+
+    public virtual Prescription Prescription { get; set; }
+    public virtual Medicament Medicament { get; set; }
 }

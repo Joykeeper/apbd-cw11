@@ -5,5 +5,6 @@ namespace Task11.Services;
 
 public interface IDbService
 {
-    Task<int> AddPrescription(PrescriptionDto prescription);
+    Task AddPrescription(PrescriptionDto prescription);
+    Task<PatientDto> GetPatientFullInfo(int patientId);
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Task11.Exceptions;
 using Task11.Services;
 
 namespace Task11.Controllers;
@@ -14,7 +15,21 @@ public class PatientsController : ControllerBase
     {
         this._dbService = db;
     }
-    
-    
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPatientInfo([FromRoute] int id)
+    {
+        
+        try
+        {
+            var patientInfo = await _dbService.GetPatientFullInfo(id);
+            
+            return Ok(patientInfo);
+        }
+        catch (NoPatientFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
 }
 
