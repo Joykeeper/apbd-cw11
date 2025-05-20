@@ -17,14 +17,14 @@ public class DbService : IDbService
     public async Task AddPrescription(PrescriptionDto prescription)
     {
         if (prescription.Medicaments?.Count > 10)
-            throw new ArgumentException("Prescription cannot contain more than 10 medicaments.");
+            throw new MedicamentsOverflowException();
 
         if (prescription.DueDate < prescription.Date)
-            throw new ArgumentException("Due date cannot be earlier than prescription date.");
+            throw new DueDateBeforeDateException();
         
         var doctor = await _context.Doctors.FindAsync(prescription.DoctorId);
         if (doctor == null)
-            throw new InvalidOperationException("No doctor found in the system.");
+            throw new NoDoctorException();
 
         Patient? patient;
 
@@ -49,8 +49,32 @@ public class DbService : IDbService
                 LastName = prescription.Patient.LastName,
                 Birthdate = prescription.Patient.Birthdate
             };
-            _context.Patients.Add(patient);
+            await _context.Patients.AddAsync(patient);
             await _context.SaveChangesAsync();
+        }
+        
+        var possibleDuplicates = await _context.Prescriptions
+            .Include(p => p.PrescriptionMedicaments)
+            .Where(p => p.IdPatient == patient.IdPatient &&
+                        p.IdDoctor == doctor.IdDoctor &&
+                        p.Date == prescription.Date &&
+                        p.DueDate == prescription.DueDate)
+            .ToListAsync();
+
+        foreach (var existing in possibleDuplicates)
+        {
+            var existingMeds = existing.PrescriptionMedicaments
+                .Select(pm => new { pm.IdMedicament, pm.Dose })
+                .OrderBy(m => m.IdMedicament)
+                .ToList();
+
+            var newMeds = prescription.Medicaments
+                .Select(pm => new { pm.IdMedicament, pm.Dose })
+                .OrderBy(m => m.IdMedicament)
+                .ToList();
+
+            if (existingMeds.SequenceEqual(newMeds))
+                throw new PrescriptionDuplicateException();
         }
 
 

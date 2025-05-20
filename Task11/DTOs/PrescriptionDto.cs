@@ -12,9 +12,7 @@ public class PrescriptionDto
     
     public DateTime? Date { get; set; }
     public DateTime? DueDate { get; set; }
-        
-    [MaxLength(10)]
-    public List<MedicamentDto>? Medicaments { get; set; }
     
+    public List<MedicamentDto>? Medicaments { get; set; }
     
 }
